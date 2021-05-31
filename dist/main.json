@@ -1,0 +1,173 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.3.539.46024",
+      "templateHash": "5330003231012308124"
+    }
+  },
+  "parameters": {
+    "storageAccountName": {
+      "type": "string"
+    },
+    "storageContainerNames": {
+      "type": "array",
+      "defaultValue": [
+        "container1",
+        "container2"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "storageDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "storageAccountName": {
+            "value": "[parameters('storageAccountName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.3.539.46024",
+              "templateHash": "3830826417897210482"
+            }
+          },
+          "parameters": {
+            "storageAccountName": {
+              "type": "string",
+              "maxLength": 10,
+              "minLength": 3
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "uniqueStorageAccountName": "[format('{0}{1}', parameters('storageAccountName'), uniqueString(resourceGroup().id))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2021-01-01",
+              "name": "[variables('uniqueStorageAccountName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "supportsHttpsTrafficOnly": true,
+                "minimumTlsVersion": "TLS1_2"
+              },
+              "kind": "StorageV2",
+              "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+              }
+            }
+          ],
+          "outputs": {
+            "storageAccountCreated": {
+              "type": "object",
+              "value": "[reference(resourceId('Microsoft.Storage/storageAccounts', variables('uniqueStorageAccountName')), '2021-01-01', 'full')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "containerDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "storageAccount": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'storageDeploy'), '2019-10-01').outputs.storageAccountCreated.value]"
+          },
+          "storageContainerNames": {
+            "value": "[parameters('storageContainerNames')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.3.539.46024",
+              "templateHash": "3905060900012062210"
+            }
+          },
+          "parameters": {
+            "storageAccount": {
+              "type": "object"
+            },
+            "storageContainerNames": {
+              "type": "array"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "copy": {
+                "name": "storageAccountContainer",
+                "count": "[length(parameters('storageContainerNames'))]"
+              },
+              "type": "Microsoft.Storage/storageAccounts/blobServices/containers",
+              "apiVersion": "2020-08-01-preview",
+              "name": "[format('{0}-default-{1}', parameters('storageAccount').name, parameters('storageContainerNames')[copyIndex()])]"
+            }
+          ],
+          "outputs": {
+            "containers": {
+              "type": "array",
+              "copy": {
+                "count": "[length(range(0, length(parameters('storageContainerNames'))))]",
+                "input": {
+                  "resource_id": "[resourceId('Microsoft.Storage/storageAccounts/blobServices/containers', split(format('{0}-default-{1}', parameters('storageAccount').name, parameters('storageContainerNames')[range(0, length(parameters('storageContainerNames')))[copyIndex()]]), '/')[0], split(format('{0}-default-{1}', parameters('storageAccount').name, parameters('storageContainerNames')[range(0, length(parameters('storageContainerNames')))[copyIndex()]]), '/')[1], split(format('{0}-default-{1}', parameters('storageAccount').name, parameters('storageContainerNames')[range(0, length(parameters('storageContainerNames')))[copyIndex()]]), '/')[2])]",
+                  "name": "[format('{0}-default-{1}', parameters('storageAccount').name, parameters('storageContainerNames')[range(0, length(parameters('storageContainerNames')))[copyIndex()]])]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'storageDeploy')]"
+      ]
+    }
+  ],
+  "outputs": {
+    "containers": {
+      "type": "array",
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'containerDeploy'), '2019-10-01').outputs.containers.value]"
+    },
+    "resources": {
+      "type": "object",
+      "value": "[resourceGroup()]"
+    }
+  }
+}
