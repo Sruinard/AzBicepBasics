@@ -16,7 +16,7 @@ module storageModule './modules/sa.bicep' = {
 module blobModule './modules/sa_containers.bicep' = {
   name: 'containerDeploy'
   params: {
-    storageAccount: storageModule.outputs.storageAccountCreated
+    storageAccount: storageModule
     storageContainerNames: storageContainerNames
   }
 }
