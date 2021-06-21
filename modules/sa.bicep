@@ -19,6 +19,4 @@ resource storageAccount 'Microsoft.Storage/storageAccounts@2021-01-01' = {
   }
 }
 
-// Not sure why this is assigned to 
-// a variable instead of 'importing' the module
 output storageAccountCreated object = storageAccount
