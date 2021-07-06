@@ -1,5 +1,12 @@
 on: [push]
 name: Azure ARM
+
+env:
+  AZURE_FUNCTIONAPP_NAME: sruinardappname # set this to your application's name
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: './github_actions'   # set this to the path to your web app project, defaults to the repository root
+  PYTHON_VERSION: '3.8'                 # set this to the python version to use (supports 3.6, 3.7, 3.8)
+
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -22,9 +29,21 @@ jobs:
         template: ./github_actions/modules/serverless.bicep
         parameters: appName=sruinardappname
         
-    - name: Azure CLI script file
-      uses: azure/CLI@v1
+    - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+      uses: actions/setup-python@v1
       with:
-        azcliversion: 2.0.72
-        inlineScript: |
-          func azure functionapp publish sruinardappname
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: 'Resolve Project Dependencies Using Pip'
+      shell: bash
+      run: |
+        pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+        popd
+    - name: 'Run Azure Functions Action'
+      uses: Azure/functions-action@v1
+      id: fa
+      with:
+        app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
