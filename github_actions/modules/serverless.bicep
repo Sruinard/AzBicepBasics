@@ -51,11 +51,12 @@ resource hosting_plan_resource 'Microsoft.Web/serverfarms@2020-06-01' = {
 resource functionApp 'Microsoft.Web/sites@2020-12-01' = {
   name: functionAppName
   location: location 
-  kind: 'functionapp'
+  kind: 'functionapp,linux'
   properties: {
     httpsOnly: true
     clientAffinityEnabled: true
     serverFarmId: hosting_plan_resource.id
+    reserved: true
     siteConfig: {
       use32BitWorkerProcess: false
       linuxFxVersion: 'Python|3.9'
@@ -76,10 +77,10 @@ resource functionApp 'Microsoft.Web/sites@2020-12-01' = {
           'name': 'FUNCTIONS_WORKER_RUNTIME'
           'value': 'python'
         }
-        {
-          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
-        }
+        // {
+        //   name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+        //   value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${listKeys(storageAccount.id, storageAccount.apiVersion).keys[0].value}'
+        // }
         {
           name: 'COSMOS_CONNECTION_STRING'
           value: 'THIS IS YOUR COSMOS CONNECTION STRING'

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.63.48766",
-      "templateHash": "12004799004551527070"
+      "templateHash": "13546540806940683758"
     }
   },
   "parameters": {
@@ -73,11 +73,12 @@
       "apiVersion": "2020-12-01",
       "name": "[variables('functionAppName')]",
       "location": "[parameters('location')]",
-      "kind": "functionapp",
+      "kind": "functionapp,linux",
       "properties": {
         "httpsOnly": true,
         "clientAffinityEnabled": true,
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServiceNamefunc'))]",
+        "reserved": true,
         "siteConfig": {
           "use32BitWorkerProcess": false,
           "linuxFxVersion": "Python|3.9",
@@ -97,10 +98,6 @@
             {
               "name": "FUNCTIONS_WORKER_RUNTIME",
               "value": "python"
-            },
-            {
-              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storageAccountName'), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName')), '2019-06-01').keys[0].value)]"
             },
             {
               "name": "COSMOS_CONNECTION_STRING",
