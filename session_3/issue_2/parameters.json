@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "principalId": {
+            "value": "f73817ac-fb4a-41ff-9a02-f692ea303278"
+        },
+        "builtInRoleType": {
+            "value": "Contributor"
+        }
+    }
+}

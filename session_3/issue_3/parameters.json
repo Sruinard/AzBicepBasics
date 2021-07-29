@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "tenantId": {
+            "value": "72f988bf-86f1-41af-91ab-2d7cd011db47"
+        },
+        "vNetArray": {
+            "value": [
+                {
+                    "vNetName": "vnet01",
+                    "vNetLocation": "centralUs",
+                    "NetworkType": "Spoke",
+                    "vNetAddressSpace": "10.200.1.0/24",
+                    "subnets": []
+                }
+            ]
+        },
+        "subnetArray": {
+            "value": [
+                {
+                    "vNetName": "vnet01",
+                    "subnetName": "webtier",
+                    "SubnetAddressSpace": "10.200.1.0/26",
+                    "serviceEndpoints": [
+                        {
+                            "service": "Microsoft.KeyVault",
+                            "locations": [
+                                "*"
+                            ]
+                        }
+                    ],
+                    "securityRules": [],
+                    "routes": []
+                }
+            ]
+        }
+    }
+}
